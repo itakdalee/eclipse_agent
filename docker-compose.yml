@@ -23,7 +23,7 @@ services:
     container_name: eclipse_agent_frontend
     ports:
       - "80:80"
-      - "443:443"
+      - "8443:443"
     volumes:
       - ./frontend:/usr/share/nginx/html:ro
       - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
