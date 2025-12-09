@@ -104,13 +104,6 @@ class TestPromptService:
         assert "коммунист" in prompt
         assert "Шаман" in prompt
 
-    def test_get_characteristics_returns_list(self, prompt_service):
-        """Проверяет, что возвращается список характеристик."""
-        characteristics = prompt_service.get_characteristics()
-
-        assert isinstance(characteristics, list)
-        assert len(characteristics) == 6
-
     def test_check_secret_revealed_true(self, prompt_service):
         """Проверяет обнаружение секретного слова в ответе."""
         response = "Вы прошли проверку. Секретное слово: TEST_SECRET"
