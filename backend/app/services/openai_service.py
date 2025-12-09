@@ -64,7 +64,9 @@ class OpenAIService:
                 model=self.model,
                 messages=messages,
                 max_tokens=1024,
-                temperature=0.1,
+                temperature=0.4,
+                top_p=0.9,
+                frequency_penalty=0.3,
             )
 
             assistant_message = response.choices[0].message.content
