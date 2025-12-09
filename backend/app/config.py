@@ -21,13 +21,13 @@ class Settings(BaseSettings):
     # OpenAI / OpenRouter настройки
     openai_api_key: str
     openai_base_url: str = "https://openrouter.ai/api/v1"
-    model_name: str = "anthropic/claude-3.5-sonnet"
+    model_name: str = "x-ai/grok-4.1-fast"
 
     # Секретное слово
-    secret_word: str = "ECLIPSE2025"
+    secret_word: str = "ГОЙДА1703"
 
     # Настройки приложения
-    app_name: str = "Secret Word Challenge"
+    app_name: str = "Eclipse Secret Word Chatbot"
     debug: bool = False
 
     # CORS настройки
