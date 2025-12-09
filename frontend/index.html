@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon"
+        href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔐</text></svg>">
+    <title>🔐</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+    <div class="chat-container">
+        <!-- Область сообщений -->
+        <div class="messages-container" id="messages">
+            <!-- Сообщения будут добавляться здесь через JavaScript -->
+        </div>
+
+        <!-- Поле ввода -->
+        <div class="input-container">
+            <input 
+                type="text" 
+                id="messageInput" 
+                class="input-field" 
+                placeholder="Спросите что-нибудь..."
+                autocomplete="off"
+            >
+            <button class="send-button" id="sendButton">
+                <svg viewBox="0 0 20 20" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                    <path
+                        d="M8.99992 16V6.41407L5.70696 9.70704C5.31643 10.0976 4.68342 10.0976 4.29289 9.70704C3.90237 9.31652 3.90237 8.6835 4.29289 8.29298L9.29289 3.29298L9.36907 3.22462C9.76184 2.90427 10.3408 2.92686 10.707 3.29298L15.707 8.29298L15.7753 8.36915C16.0957 8.76192 16.0731 9.34092 15.707 9.70704C15.3408 10.0732 14.7618 10.0958 14.3691 9.7754L14.2929 9.70704L10.9999 6.41407V16C10.9999 16.5523 10.5522 17 9.99992 17C9.44764 17 8.99992 16.5523 8.99992 16Z">
+                    </path>
+                </svg>
+            </button>
+        </div>
+
+        <!-- Footer с кнопкой очистки -->
+        <div class="chat-footer">
+            <button class="clear-btn" id="clearBtn">🗑️ Очистить историю</button>
+        </div>
+    </div>
+
+    <!-- Модальный диалог подтверждения -->
+    <div class="modal-overlay" id="confirmModal">
+        <div class="modal-dialog">
+            <div class="modal-icon">🗑️</div>
+            <h3 class="modal-title">Очистить историю?</h3>
+            <p class="modal-text">Все сообщения будут удалены. Это действие нельзя отменить.</p>
+            <div class="modal-buttons">
+                <button class="modal-btn modal-btn-cancel" id="modalCancel">Отмена</button>
+                <button class="modal-btn modal-btn-confirm" id="modalConfirm">Очистить</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript модули -->
+    <script type="module" src="js/app.js"></script>
+</body>
+
+</html>
