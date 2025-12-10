@@ -6,6 +6,7 @@
 
 import logging
 from typing import Any
+from asyncio import sleep
 
 from openai import AsyncOpenAI, OpenAIError
 
@@ -18,6 +19,7 @@ logger = logging.getLogger(__name__)
 
 class OpenAIService:
     """Сервис для отправки запросов к OpenAI API."""
+    max_retries_on_error = 3
 
     def __init__(self, settings: Settings, prompt_service: PromptService) -> None:
         """
@@ -52,35 +54,49 @@ class OpenAIService:
             Ответ от AI
 
         Raises:
-            OpenAIError: При ошибке API
+            OpenAIError: При ошибке API после всех попыток
         """
         # Формируем список сообщений для API
         messages = self._build_messages(user_message, conversation_history)
 
-        try:
-            logger.info(f"Отправка запроса к {self.model}")
+        last_error = None
 
-            response = await self.client.chat.completions.create(
-                model=self.model,
-                messages=messages,
-                max_tokens=1024,
-                temperature=0.4,
-                top_p=0.9,
-                frequency_penalty=0.3,
-            )
+        for attempt in range(self.max_retries_on_error + 1):
+            try:
+                logger.info(f"Отправка запроса к {self.model} (попытка {attempt + 1})")
 
-            assistant_message = response.choices[0].message.content
+                response = await self.client.chat.completions.create(
+                    model=self.model,
+                    messages=messages,
+                    max_tokens=1024,
+                    temperature=0.44,
+                    top_p=0.9,
+                    frequency_penalty=0.3,
+                )
 
-            if assistant_message is None:
-                logger.warning("Получен пустой ответ от API")
-                return "Извините, не удалось получить ответ. Попробуйте ещё раз."
+                assistant_message = response.choices[0].message.content
 
-            logger.info("Успешно получен ответ от API")
-            return assistant_message
+                # Проверка на корректность ответа
+                if assistant_message is None or not assistant_message.strip() or len(assistant_message.strip()) <= 1:
+                    logger.warning(f"Получен некорректный ответ от API (попытка {attempt + 1}): пустой или слишком короткий")
+                    # Если получен некорректный ответ - бросаем исключение для retry
+                    raise OpenAIError("Empty or invalid response from API")
 
-        except OpenAIError as e:
-            logger.error(f"Ошибка OpenAI API: {e}")
-            raise
+                logger.info("Успешно получен ответ от API")
+                return assistant_message
+
+            except OpenAIError as e:
+                last_error = e
+                if attempt < self.max_retries_on_error:
+                    wait_time = 2 ** attempt  # Exponential backoff: 1, 2, 4 секунды
+                    logger.warning(f"Ошибка OpenAI API (попытка {attempt + 1}/{self.max_retries_on_error + 1}): {e}. Повтор через {wait_time}с")
+                    await sleep(wait_time)
+                else:
+                    logger.error(f"Ошибка OpenAI API после {self.max_retries_on_error + 1} попыток: {e}")
+                    raise last_error
+
+        # На случай, если цикл завершился без return (не должно происходить)
+        raise OpenAIError(f"Failed after {self.max_retries_on_error + 1} attempts")
 
     def _build_messages(
         self, user_message: str, conversation_history: list[Message]
@@ -101,9 +117,9 @@ class OpenAIService:
         system_prompt = self.prompt_service.get_system_prompt()
         messages.append({"role": "system", "content": system_prompt})
 
-        # Добавляем историю разговора (без системных сообщений)
+        # Добавляем историю разговора (без системных сообщений и пустых content)
         for msg in conversation_history:
-            if msg.role in ("user", "assistant"):
+            if msg.role in ("user", "assistant") and msg.content and msg.content.strip():
                 messages.append({"role": msg.role, "content": msg.content})
 
         # Добавляем текущее сообщение пользователя
